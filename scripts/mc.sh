@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 set -e
 
-# Base directory determination
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Resolve real path even when invoked via symlink (/usr/local/bin/mc)
+REAL_SCRIPT="$(realpath "${BASH_SOURCE[0]}")"
+SCRIPT_DIR="$(dirname "$REAL_SCRIPT")"
 BASE_DIR="$(dirname "$SCRIPT_DIR")"
 cd "$BASE_DIR"
 
@@ -43,7 +44,7 @@ case "$1" in
     docker compose restart
     ;;
   logs)
-    docker compose logs -f minecraft
+    docker logs -f "$CONTAINER_NAME"
     ;;
   cmd)
     shift

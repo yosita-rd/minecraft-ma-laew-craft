@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 set -e
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REAL_SCRIPT="$(realpath "${BASH_SOURCE[0]}")"
+SCRIPT_DIR="$(dirname "$REAL_SCRIPT")"
 BASE_DIR="$(dirname "$SCRIPT_DIR")"
 BACKUP_DIR="$BASE_DIR/backups"
 DATA_DIR="$BASE_DIR/server-data"
