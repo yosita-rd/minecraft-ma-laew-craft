@@ -25,7 +25,6 @@ sudo DEBIAN_FRONTEND=noninteractive apt install -y \
   lsb-release \
   git \
   jq \
-  ufw \
   fail2ban \
   netfilter-persistent \
   iptables-persistent
