@@ -18,14 +18,13 @@ APP_DIR="$USER_HOME/minecraft"
 # 1. Update system packages
 echo "[1/6] Updating system packages..."
 sudo apt update && sudo apt upgrade -y
-sudo DEBIAN_FRONTEND=noninteractive apt install -y \
+sudo DEBIAN_FRONTEND=noninteractive apt install -y --no-install-recommends \
   ca-certificates \
   curl \
   gnupg \
   lsb-release \
   git \
   jq \
-  fail2ban \
   netfilter-persistent \
   iptables-persistent
 
