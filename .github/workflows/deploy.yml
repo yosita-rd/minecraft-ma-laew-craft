@@ -1,0 +1,86 @@
+name: Deploy Minecraft Server
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - '**.md'
+      - '.gitignore'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy to VPS
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Deploy to VPS via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_SSH_PORT || 22 }}
+          script_stop: true
+          script: |
+            set -e
+            APP_DIR="$HOME/minecraft"
+            mkdir -p "$APP_DIR/scripts" "$APP_DIR/server-data" "$APP_DIR/backups"
+
+            echo "Syncing configuration files..."
+            cd "$APP_DIR"
+
+            # Create default .env if it does not exist yet
+            if [ ! -f "$APP_DIR/.env" ]; then
+              echo "Creating initial .env from template..."
+              cat << 'EOF' > "$APP_DIR/.env"
+            ${{ secrets.ENV_FILE || '' }}
+            EOF
+              # If secret ENV_FILE wasn't provided, fallback to basic defaults
+              if [ ! -s "$APP_DIR/.env" ]; then
+                echo "MEMORY=6G" >> "$APP_DIR/.env"
+                echo "SERVER_NAME=Ma-Laew-Craft" >> "$APP_DIR/.env"
+                echo "DIFFICULTY=normal" >> "$APP_DIR/.env"
+                echo "MAX_PLAYERS=10" >> "$APP_DIR/.env"
+                echo "VIEW_DISTANCE=10" >> "$APP_DIR/.env"
+                echo "RCON_PASSWORD=${{ secrets.RCON_PASSWORD || 'GenerateStrongPass123!' }}" >> "$APP_DIR/.env"
+              fi
+            fi
+
+      - name: Copy Repository Files to VPS
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_SSH_PORT || 22 }}
+          source: "docker-compose.yml,.env.example,scripts/*"
+          target: "~/minecraft"
+          overwrite: true
+
+      - name: Restart Server & Run Healthcheck
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_SSH_PORT || 22 }}
+          script: |
+            set -e
+            APP_DIR="$HOME/minecraft"
+            cd "$APP_DIR"
+
+            # Set execution permissions
+            chmod +x "$APP_DIR/scripts/"*.sh
+            sudo ln -sf "$APP_DIR/scripts/mc.sh" /usr/local/bin/mc
+
+            echo "Deploying Docker container..."
+            docker compose up -d --remove-orphans
+
+            echo "Checking container status..."
+            sleep 5
+            docker ps --filter "name=mc-bedrock-server"

@@ -1,0 +1,24 @@
+# Environment and secrets
+.env
+.env.local
+*.secret
+
+# Minecraft server data & world saves (retained on VPS, not tracked in git)
+server-data/
+data/
+world/
+world_nether/
+world_the_end/
+
+# Backups
+backups/
+*.tar.gz
+*.zip
+*.log
+
+# OS & Editor generated files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp

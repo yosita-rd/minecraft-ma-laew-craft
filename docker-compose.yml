@@ -1,0 +1,48 @@
+services:
+  minecraft:
+    image: itzg/minecraft-server:latest
+    container_name: mc-bedrock-server
+    restart: unless-stopped
+    ports:
+      - "${BEDROCK_PORT:-19132}:19132/udp"
+      - "${JAVA_PORT:-25565}:25565/tcp"
+    environment:
+      EULA: "TRUE"
+      TYPE: "PAPER"
+      VERSION: "${VERSION:-LATEST}"
+      MEMORY: "${MEMORY:-6G}"
+      SERVER_NAME: "${SERVER_NAME:-Ma-Laew-Craft}"
+      MOTD: "${MOTD:-§aMa-Laew-Craft §7| §eBedrock & Java Hybrid Server}"
+      DIFFICULTY: "${DIFFICULTY:-normal}"
+      MODE: "${MODE:-survival}"
+      ENABLE_AUTOPAUSE: "FALSE"
+      VIEW_DISTANCE: "${VIEW_DISTANCE:-10}"
+      MAX_PLAYERS: "${MAX_PLAYERS:-10}"
+      ONLINE_MODE: "${ONLINE_MODE:-TRUE}"
+      ENABLE_COMMAND_BLOCK: "${ENABLE_COMMAND_BLOCK:-TRUE}"
+      USE_AIKAR_FLAGS: "TRUE"
+      ENABLE_RCON: "TRUE"
+      RCON_PASSWORD: "${RCON_PASSWORD:-ChangeThisPasswordImmediately}"
+      RCON_PORT: 25575
+      PLUGINS: |
+        https://download.geysermc.org/v2/projects/geyser/versions/latest/builds/latest/downloads/spigot
+        https://download.geysermc.org/v2/projects/floodgate/versions/latest/builds/latest/downloads/spigot
+        https://github.com/ViaVersion/ViaVersion/releases/latest/download/ViaVersion.jar
+        https://hangarcdn.papermc.io/plugins/pop4959/Chunky/versions/1.4.28/PAPER/Chunky-Paper-1.4.28.jar
+        https://spark.lucko.me/download/bukkit
+        ${EXTRA_PLUGINS:-}
+    volumes:
+      - ./server-data:/data
+    stdin_open: true
+    tty: true
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "5"
+    healthcheck:
+      test: ["CMD-SHELL", "mc-health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 120s

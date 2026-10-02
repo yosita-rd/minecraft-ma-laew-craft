@@ -1,0 +1,36 @@
+name: Trigger Server Backup & Status
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Action to perform'
+        required: true
+        default: 'backup'
+        type: choice
+        options:
+          - backup
+          - status
+
+jobs:
+  manage:
+    name: Execute Server Action
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Run Action via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_SSH_PORT || 22 }}
+          script: |
+            set -e
+            if [ "${{ inputs.action }}" = "backup" ]; then
+              echo "Triggering backup..."
+              /home/ubuntu/minecraft/scripts/backup.sh
+            elif [ "${{ inputs.action }}" = "status" ]; then
+              echo "Checking server status..."
+              /home/ubuntu/minecraft/scripts/mc.sh status
+            fi
