@@ -2,6 +2,8 @@
 .env
 .env.local
 *.secret
+*.key
+*.pem
 
 # Minecraft server data & world saves (retained on VPS, not tracked in git)
 server-data/
