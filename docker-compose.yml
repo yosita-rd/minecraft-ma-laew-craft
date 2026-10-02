@@ -13,7 +13,7 @@ services:
       MEMORY: "${MEMORY:-8G}"
       SERVER_NAME: "${SERVER_NAME:-Ma-Laew-Craft}"
       MOTD: "${MOTD:-§aMa-Laew-Craft §7| §eBedrock & Java Hybrid Server}"
-      DIFFICULTY: "${DIFFICULTY:-normal}"
+      DIFFICULTY: "${DIFFICULTY:-easy}"
       MODE: "${MODE:-survival}"
       ENABLE_AUTOPAUSE: "FALSE"
       VIEW_DISTANCE: "${VIEW_DISTANCE:-8}"
